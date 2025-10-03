@@ -306,7 +306,7 @@ defmodule Yugo.Parser do
     {[name, _adl, mailbox, host], rest} =
       parse_list(rest, [&parse_nstring/1, &parse_nstring/1, &parse_nstring/1, &parse_nstring/1])
 
-    {{name, "#{String.downcase(mailbox)}@#{String.downcase(host)}"}, rest}
+    {{name, "#{safe_downcase(mailbox)}@#{safe_downcase(host)}"}, rest}
   end
 
   defp parse_address_list(rest) do
@@ -449,7 +449,7 @@ defmodule Yugo.Parser do
         :lax
       )
 
-    mime_type = "#{String.downcase(mime1)}/#{String.downcase(mime2)}"
+    mime_type = "#{safe_downcase(mime1)}/#{safe_downcase(mime2)}"
 
     body = %{
       mime_type: mime_type,
@@ -459,4 +459,8 @@ defmodule Yugo.Parser do
 
     {{:body, {:onepart, body}}, rest}
   end
+
+  defp safe_downcase(nil), do: nil
+
+  defp safe_downcase(string), do: String.downcase(string)
 end

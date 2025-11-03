@@ -519,7 +519,7 @@ defmodule Yugo.Client do
         resp_fn.(conn, status, text)
 
       {:tagged_response, {tag, status, text}} when status in [:bad, :no] ->
-        raise "Got `#{status |> to_string() |> String.upcase()}` response status: `#{text}`. Command that caused this response: `#{conn.tag_map[tag].command}`"
+        raise "Got `#{status |> to_string() |> String.upcase()}` response status: `#{text}`."
 
       {:server_message, message} ->
         raise "Server message: #{message}"

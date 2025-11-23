@@ -2,6 +2,7 @@ defmodule Yugo.ClientTest do
   use ExUnit.Case, async: true
   doctest Yugo.Client
   import Helpers.Client
+  import ExUnit.CaptureLog
 
   test "Upgrades insecure connections via STARTTLS" do
     accept_gen_tcp()
@@ -21,25 +22,27 @@ defmodule Yugo.ClientTest do
   test "client crashes when server sends BYE" do
     Process.flag(:trap_exit, true)
 
-    socket =
-      ssl_server()
-      |> assert_comms(~S"""
-      S: * BYE Server shutting down.
-      C: LOGOUT
-      """)
+    capture_log(fn ->
+      socket =
+        ssl_server()
+        |> assert_comms(~S"""
+        S: * BYE Server shutting down.
+        C: LOGOUT
+        """)
 
-    assert_receive {:EXIT, _pid,
-                    {%RuntimeError{message: "Server message: Server shutting down."}, _}},
-                   1000
+      assert_receive {:EXIT, _pid,
+                      {%RuntimeError{message: "Server message: Server shutting down."}, _}},
+                     1000
 
-    module =
-      cond do
-        is_tuple(socket) and tuple_size(socket) > 0 and elem(socket, 0) == :sslsocket -> :ssl
-        is_port(socket) -> :gen_tcp
-        true -> raise "Unknown socket type: #{inspect(socket)}"
-      end
+      module =
+        cond do
+          is_tuple(socket) and tuple_size(socket) > 0 and elem(socket, 0) == :sslsocket -> :ssl
+          is_port(socket) -> :gen_tcp
+          true -> raise "Unknown socket type: #{inspect(socket)}"
+        end
 
-    assert {:error, :closed} = module.recv(socket, 0, 1000)
+      assert {:error, :closed} = module.recv(socket, 0, 1000)
+    end)
   end
 
   test "receives one-body text/plain message" do

@@ -118,10 +118,15 @@ defmodule Yugo.Client do
   end
 
   @impl true
-  def terminate(_reason, conn) do
+  def terminate(_reason, %Conn{} = conn) do
+    # Use send raw instead of send_cmd since we cannot know what
+    # the state of the conn is in this situation
     conn
-    |> send_command("LOGOUT")
+    |> send_raw("LOGOUT\r\n")
   end
+
+  @impl true
+  def terminate(_reason, _), do: :ok
 
   @impl true
   def handle_cast({:subscribe, pid, filter}, conn) do
@@ -650,7 +655,7 @@ defmodule Yugo.Client do
   end
 
   defp send_command(conn, cmd, on_response \\ fn conn, _status, _text -> conn end) do
-    tag = conn.next_cmd_tag
+    tag = Map.get(conn, :next_cmd_tag, 1)
     cmd = "#{tag} #{cmd}\r\n"
 
     send_raw(conn, cmd)

@@ -119,4 +119,17 @@ defmodule Yugo.ParserTest do
     # Should not crash and should return a fetch action with multipart body
     assert [fetch: {1, :body, {:multipart, _parts}}] = result
   end
+
+  test "parse FETCH response with date missing seconds" do
+    [
+      fetch:
+        {12, :envelope,
+         %{
+           date: ~U[1996-07-17 09:23:00Z]
+         }}
+    ] =
+      Parser.parse_response(
+        ~S|* 12 FETCH (ENVELOPE ("Wed, 17 Jul 1996 02:23 -0700 (PDT)" NIL NIL NIL NIL NIL NIL NIL NIL NIL))|
+      )
+  end
 end

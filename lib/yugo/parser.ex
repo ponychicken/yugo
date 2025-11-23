@@ -390,7 +390,7 @@ defmodule Yugo.Parser do
       Time.new!(
         String.to_integer(parts["hour"]),
         String.to_integer(parts["minute"]),
-        String.to_integer(parts["second"] || 0)
+        String.to_integer(parts["second"] || "0")
       )
 
     DateTime.new!(date, time)

@@ -18,8 +18,11 @@ jobs:
     name: Test on OTP ${{matrix.otp}} / Elixir ${{matrix.elixir}}
     strategy:
       matrix:
-        otp: ["28.1.1"]
-        elixir: ["1.18.4"]
+        otp: ["25.0.4", "28.1.1"]
+        elixir: ["1.14.1", "1.18.4"]
+        exclude:
+          - elixir: "1.14.1"
+            otp: "28.1.1"
     steps:
       - name: Set up Elixir
         uses: erlef/setup-beam@v1

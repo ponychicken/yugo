@@ -19,12 +19,10 @@ defmodule Helpers.Client do
 
   defp assert_comms_aux(socket, [line | rest]) do
     module =
-      case socket do
-        {:sslsocket, _, _} ->
-          :ssl
-
-        p when is_port(p) ->
-          :gen_tcp
+      cond do
+        is_tuple(socket) and tuple_size(socket) > 0 and elem(socket, 0) == :sslsocket -> :ssl
+        is_port(socket) -> :gen_tcp
+        true -> raise "Unknown socket type: #{inspect(socket)}"
       end
 
     case line do

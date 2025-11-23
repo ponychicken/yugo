@@ -386,11 +386,18 @@ defmodule Yugo.Parser do
         String.to_integer(parts["day"])
       )
 
+    second =
+      case parts["second"] do
+        "" -> "0"
+        nil -> "0"
+        s -> s
+      end
+
     time =
       Time.new!(
         String.to_integer(parts["hour"]),
         String.to_integer(parts["minute"]),
-        String.to_integer(parts["second"] || "0")
+        String.to_integer(second)
       )
 
     DateTime.new!(date, time)

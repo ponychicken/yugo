@@ -18,6 +18,27 @@ defmodule Yugo.ClientTest do
     """)
   end
 
+  test "client crashes when server sends BYE" do
+    Process.flag(:trap_exit, true)
+
+    socket =
+      ssl_server()
+      |> assert_comms(~S"""
+      S: * BYE Server shutting down.
+      C: LOGOUT
+      """)
+
+    assert_receive {:EXIT, _pid, {%RuntimeError{message: "Server message: Server shutting down."}, _}}, 1000
+
+    module =
+      case socket do
+        {:sslsocket, _, _} -> :ssl
+        p when is_port(p) -> :gen_tcp
+      end
+
+    assert {:error, :closed} = module.recv(socket, 0, 1000)
+  end
+
   test "receives one-body text/plain message" do
     ssl_server()
     |> assert_comms(~S"""

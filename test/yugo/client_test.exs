@@ -28,7 +28,9 @@ defmodule Yugo.ClientTest do
       C: LOGOUT
       """)
 
-    assert_receive {:EXIT, _pid, {%RuntimeError{message: "Server message: Server shutting down."}, _}}, 1000
+    assert_receive {:EXIT, _pid,
+                    {%RuntimeError{message: "Server message: Server shutting down."}, _}},
+                   1000
 
     module =
       case socket do
